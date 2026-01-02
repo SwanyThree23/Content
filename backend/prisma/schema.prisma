@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects  Project[]
+  apiKeys   APIKey[]
+  messages  Message[]
+  usage     Usage[]
+  webhooks  Webhook[]
+  streams   Stream[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  type        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+}
+
+model APIKey {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  key       String    @unique
+  createdAt DateTime  @default(now())
+  lastUsed  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String?
+  role      String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Usage {
+  id        String   @id @default(cuid())
+  userId    String
+  service   String
+  requests  Int      @default(0)
+  tokens    Int      @default(0)
+  cost      Float    @default(0)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Webhook {
+  id        String    @id @default(cuid())
+  userId    String
+  url       String
+  event     String
+  active    Boolean   @default(true)
+  calls     Int       @default(0)
+  lastFired DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Stream {
+  id        String    @id @default(cuid())
+  userId    String
+  config    String    @db.Text
+  status    String
+  endedAt   DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MCPServer {
+  id        String   @id @default(cuid())
+  name      String
+  type      String
+  config    String   @db.Text
+  status    String
+  createdAt DateTime @default(now())
+}
