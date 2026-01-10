@@ -1,0 +1,221 @@
+# ============================================
+# AI SOAP OPERA STUDIO - N8N AUTOMATION WORKFLOW
+# ============================================
+# Complete automation for episode generation and publishing
+
+{
+  "name": "Soap Opera Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 */3 * *"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_URL}}/api/episodes/generate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{$env.API_TOKEN}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "series_id",
+              "value": "={{$env.SERIES_ID}}"
+            },
+            {
+              "name": "episode_number",
+              "value": "={{$json.next_episode}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Generate Episode Script",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "amount": 60,
+        "unit": "seconds"
+      },
+      "name": "Wait for Script",
+      "type": "n8n-nodes-base.wait",
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_URL}}/api/videos/generate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{$env.API_TOKEN}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "episode_id",
+              "value": "={{$json.episode.id}}"
+            }
+          ]
+        }
+      },
+      "name": "Generate Videos",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "minutes"
+      },
+      "name": "Wait for Videos",
+      "type": "n8n-nodes-base.wait",
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.API_URL}}/api/youtube/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{$env.API_TOKEN}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "episode_id",
+              "value": "={{$json.episode.id}}"
+            },
+            {
+              "name": "privacy_status",
+              "value": "public"
+            }
+          ]
+        }
+      },
+      "name": "Upload to YouTube",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "content": "🎬 New Episode Published!\n\nSeries: {{$json.series_title}}\nEpisode: {{$json.episode_number}}\nYouTube URL: {{$json.youtube_url}}\n\n✅ Automation Complete",
+        "channel": "#soap-opera-updates"
+      },
+      "name": "Send Notification",
+      "type": "n8n-nodes-base.slack",
+      "position": [1450, 300]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate Episode Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Episode Script": {
+      "main": [
+        [
+          {
+            "node": "Wait for Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Script": {
+      "main": [
+        [
+          {
+            "node": "Generate Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Videos": {
+      "main": [
+        [
+          {
+            "node": "Wait for Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Videos": {
+      "main": [
+        [
+          {
+            "node": "Upload to YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to YouTube": {
+      "main": [
+        [
+          {
+            "node": "Send Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-08T00:00:00.000Z",
+  "versionId": "1"
+}

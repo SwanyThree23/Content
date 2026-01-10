@@ -1,0 +1,24 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "env": {
+    "DATABASE_URL": "@database-url",
+    "ANTHROPIC_API_KEY": "@anthropic-api-key",
+    "YOUTUBE_CLIENT_ID": "@youtube-client-id",
+    "YOUTUBE_CLIENT_SECRET": "@youtube-client-secret",
+    "JWT_SECRET": "@jwt-secret",
+    "NEXT_PUBLIC_APP_URL": "https://your-app.vercel.app"
+  },
+  "regions": ["iad1"],
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 60
+    },
+    "api/videos/**/*.ts": {
+      "maxDuration": 300
+    }
+  }
+}
