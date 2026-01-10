@@ -136,6 +136,13 @@ export default function StudioPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link
+                href="/studio/professional-broadcast"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition"
+              >
+                <TrendingUp className="w-5 h-5 inline mr-2" />
+                Pro Broadcast
+              </Link>
+              <Link
                 href="/studio/live-recording"
                 className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 transition"
               >
