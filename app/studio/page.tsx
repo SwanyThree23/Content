@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Film, Plus, Play, Upload, TrendingUp } from 'lucide-react';
+import { Film, Plus, Play, Upload, TrendingUp, Video } from 'lucide-react';
+import Link from 'next/link';
 
 interface Series {
   id: string;
@@ -134,6 +135,13 @@ export default function StudioPage() {
               <h1 className="text-2xl font-bold">AI Soap Opera Studio</h1>
             </div>
             <div className="flex items-center gap-4">
+              <Link
+                href="/studio/live-recording"
+                className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 transition"
+              >
+                <Video className="w-5 h-5 inline mr-2" />
+                Live Recording
+              </Link>
               <button className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition">
                 <Plus className="w-5 h-5 inline mr-2" />
                 New Series
