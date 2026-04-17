@@ -391,24 +391,167 @@ See `/docs/DEPLOYMENT.md`
 
 ---
 
-## **🎓 Example: Domino Entertainment**
+## **🎓 Domino Entertainment — Live Configuration**
 
-Pre-configured for your channel:
+Everything below is pre-configured and ready to use.
 
-```typescript
-// VDO.ninja Recording
-Room: "DominoDynasty"
-Password: "domino2024"
-URL: https://vdo.ninja/?view=6EcRB3QE&room=SwanyThree
+---
 
-// evmux Broadcasting
-RTMP: rtmp://rtmp1.us-east-1.evmux.com/live
-App: app-b6zHr3-35539f7e-1450-4412-9c6e-0372cd9bcbba
-Token: 7db2077153
+### **📡 evmux Broadcasting**
 
-// Series Templates
-- "Domino Dynasty" - Family drama
-- "The Domino Effect" - Thriller
+| Setting | Value |
+|---------|-------|
+| **RTMP Ingest** | `rtmp://rtmp1.us-east-1.evmux.com/live` |
+| **Stream Key** | `app-b6zHr3-35539f7e-1450-4412-9c6e-0372cd9bcbba?token=7db2077153` |
+| **Editor Console** | https://console.evmux.com/editor/3491/244617 |
+| **Guest Link** | https://console.evmux.com/guest/9ql-0vvq-hsm |
+| **Web Source Demo** | https://publicfiles.evmux.com/static/websources/websource-demo.v7.html |
+
+**Full OBS / FFmpeg RTMP URL:**
+```
+rtmp://rtmp1.us-east-1.evmux.com/live/app-b6zHr3-35539f7e-1450-4412-9c6e-0372cd9bcbba?token=7db2077153
+```
+
+**FFmpeg stream command:**
+```bash
+ffmpeg -re -i input.mp4 \
+  -c:v libx264 -preset veryfast -maxrate 4500k -bufsize 9000k \
+  -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 \
+  -f flv "rtmp://rtmp1.us-east-1.evmux.com/live/app-b6zHr3-35539f7e-1450-4412-9c6e-0372cd9bcbba?token=7db2077153"
+```
+
+---
+
+### **🎨 Custom evmux Web Source (Animated Overlay)**
+
+Save this as an HTML file and host via evmux Web Sources or any static host:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  p {
+    font-size: 70px;
+    padding: 20px 30px;
+    text-align: center;
+    color: #fff;
+    font-family: Roboto, SANS-SERIF;
+    text-shadow: 1px 1px black;
+    margin: 0 0 40px 0;
+  }
+  .content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .content h2 {
+    color: #fff;
+    font-size: 150px;
+    position: absolute;
+    text-transform: uppercase;
+    font-family: Roboto, SANS-SERIF;
+  }
+  .content h2:nth-child(1) {
+    color: transparent;
+    -webkit-text-stroke: 2px #068deb;
+  }
+  .content h2:nth-child(2) {
+    color: #068deb;
+    animation: animate 4s ease-in-out infinite;
+  }
+  @keyframes animate {
+    0%, 100% {
+      clip-path: polygon(
+        0% 45%, 16% 44%, 33% 50%, 54% 60%,
+        70% 61%, 84% 59%, 100% 52%, 100% 100%, 0% 100%
+      );
+    }
+    50% {
+      clip-path: polygon(
+        0% 60%, 15% 65%, 34% 66%, 51% 62%,
+        67% 50%, 84% 45%, 100% 46%, 100% 100%, 0% 100%
+      );
+    }
+  }
+</style>
+</head>
+<body>
+  <section style="flex:1; overflow: hidden;">
+    <div class="content">
+      <h2>Domino Entertainment</h2>
+      <h2>Domino Entertainment</h2>
+    </div>
+  </section>
+  <section>
+    <p>Professional AI Soap Opera Studio — Live on evmux</p>
+  </section>
+</body>
+</html>
+```
+
+---
+
+### **🎬 VDO.ninja Live Streams**
+
+| Stream | URL |
+|--------|-----|
+| **Viewer 1 (Solo)** | https://vdo.ninja/?view=6EcRB3QE&room=SwanyThree&solo |
+| **Viewer 2 (Scene)** | https://vdo.ninja/?v=SwanyThree&r=Domino&scn |
+| **Viewer 3** | https://vdo.ninja/?v=xaUagnuH |
+
+**Room configurations:**
+
+```bash
+# Domino Dynasty room
+Director: https://vdo.ninja/?director=DominoDynasty&password=domino2024
+Push:     https://vdo.ninja/?push=Actor1&room=DominoDynasty&password=domino2024
+View:     https://vdo.ninja/?view=DominoDynasty&password=domino2024
+
+# Domino Effect room
+Director: https://vdo.ninja/?director=DominoEffect&password=domino2024
+Push:     https://vdo.ninja/?push=Actor1&room=DominoEffect&password=domino2024
+View:     https://vdo.ninja/?view=DominoEffect&password=domino2024
+```
+
+**OBS Browser Source (to pull VDO.ninja into evmux):**
+```
+https://vdo.ninja/?view=6EcRB3QE&room=SwanyThree&cleanoutput&autostart
+```
+
+---
+
+### **📺 Series Templates**
+
+| Series | Genre | Tone |
+|--------|-------|------|
+| **Domino Dynasty** | Family Drama | Intense, Emotional |
+| **The Domino Effect** | Psychological Thriller | Dark, Suspenseful |
+
+---
+
+### **🔗 Hybrid Pipeline (VDO.ninja → evmux → YouTube)**
+
+```
+Actors join VDO.ninja room
+        ↓
+OBS pulls VDO.ninja via Browser Source
+        ↓
+OBS adds evmux overlays (title, lower third, logo)
+        ↓
+OBS streams via RTMP to evmux ingest
+        ↓
+evmux distributes to YouTube Live + Twitch
+        ↓
+Auto-published to Domino Entertainment channel
 ```
 
 ---
