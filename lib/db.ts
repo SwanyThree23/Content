@@ -203,7 +203,13 @@ export const db = {
     await sql`
       INSERT INTO audit_logs ${sql(data)}
     `;
-  }
+  },
+
+  // Generic pg-compatible query adapter for new API routes
+  async query(text: string, params?: unknown[]): Promise<{ rows: Record<string, unknown>[] }> {
+    const result = await sql.unsafe(text, params as never[]);
+    return { rows: result as Record<string, unknown>[] };
+  },
 };
 
 export default sql;
