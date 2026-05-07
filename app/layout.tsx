@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import dynamic from 'next/dynamic';
+
+const QuickNav = dynamic(() => import('@/components/ui/QuickNav').then((m) => m.QuickNav), { ssr: false });
 
 export const metadata: Metadata = {
   title: 'AI Soap Opera Studio — Domino Entertainment',
@@ -15,7 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased bg-gray-950">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <QuickNav />
+        </Providers>
       </body>
     </html>
   );
